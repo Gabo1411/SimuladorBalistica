@@ -66,7 +66,7 @@ public class Target : MonoBehaviour
         transform.rotation = _initialRotation;
 
         // Detener física
-        _rb.linearVelocity        = Vector3.zero;
+        _rb.velocity        = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
 
         // Re-activar si estaba desactivado

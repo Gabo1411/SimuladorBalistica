@@ -29,7 +29,6 @@ public class TargetStructure : MonoBehaviour
     private class JointData
     {
         public Joint   JointComponent;
-        public bool    WasEnabled;
         public Vector3 Anchor;
     }
 
@@ -105,7 +104,6 @@ public class TargetStructure : MonoBehaviour
             _jointDataList.Add(new JointData
             {
                 JointComponent = joint,
-                WasEnabled     = joint.enabled,
                 Anchor         = joint.anchor
             });
         }
@@ -113,11 +111,13 @@ public class TargetStructure : MonoBehaviour
 
     private void RestoreJoints()
     {
+        // Joint no hereda de Behaviour, no tiene 'enabled'.
+        // Reactivar el GameObject del joint si fue desactivado durante el juego.
         foreach (var data in _jointDataList)
         {
-            if (data.JointComponent != null)
+            if (data.JointComponent != null && !data.JointComponent.gameObject.activeSelf)
             {
-                data.JointComponent.enabled = data.WasEnabled;
+                data.JointComponent.gameObject.SetActive(true);
             }
         }
     }
