@@ -91,7 +91,7 @@ public class Projectile : MonoBehaviour
         StartCoroutine(ReportImpactNextFrame(data));
 
         if (DestroyOnFirstImpact)
-            Destroy(gameObject, 0.5f); // Pequeño delay para que se vea el impacto
+            Destroy(gameObject, 2.5f); // Debe ser mayor que el WaitForSeconds de la corrutina (1.5f)
     }
 
     // ── Auxiliares ─────────────────────────────────────────────────────────────

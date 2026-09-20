@@ -16,7 +16,7 @@ public class UIController : MonoBehaviour
     [Header("Controles de Disparo")]
     public Slider    AngleSlider;
     public Slider    ForceSlider;
-    public TMP_Dropdown MassDropdown;   // Opciones: Ligero (0.5), Mediano (1), Pesado (3)
+    public TMP_Dropdown MassDropdown;
     public Button    FireButton;
     public Button    ResetButton;
 
@@ -190,14 +190,21 @@ public class UIController : MonoBehaviour
     /// <summary>Muestra el panel de resultado con los datos del último disparo.</summary>
     public void ShowResultPanel(ShotResult result)
     {
+        // Detener contador de vuelo sin importar qué
         _isInFlight = false;
-        if (FlightTimeLabel != null) FlightTimeLabel.gameObject.SetActive(false);
+
+        // Ocultar HUD de vuelo
+        if (FlightTimeLabel != null)
+            FlightTimeLabel.gameObject.SetActive(false);
+
+        // Mostrar panel de apuntado de nuevo (botón reiniciar visible)
+        AimingPanel?.SetActive(true);
 
         if (result == null) return;
 
         // Rellenar textos
-        if (ResultText   != null) ResultText.text   = result.Report;
-        if (ScoreText    != null) ScoreText.text     = $"{result.Score:F0} pts";
+        if (ResultText     != null) ResultText.text  = result.Report;
+        if (ScoreText      != null) ScoreText.text   = $"{result.Score:F0} pts";
         if (TotalScoreText != null)
         {
             float total = GameManager.Instance?.ResultManager?.TotalScore() ?? 0f;
@@ -206,7 +213,7 @@ public class UIController : MonoBehaviour
 
         ResultPanel?.SetActive(true);
 
-        // Animación de entrada (requiere Animator o se hace con código simple)
+        // Animación de entrada
         AnimateResultPanel();
     }
 
