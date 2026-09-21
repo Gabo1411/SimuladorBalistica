@@ -5,43 +5,42 @@ using TMPro;
 /// <summary>
 /// Controla toda la interfaz de usuario del simulador:
 /// - Sliders de ángulo y fuerza
-/// - Dropdown de masa
+/// - Dropdown de masa del proyectil
 /// - Botones Disparar / Reiniciar
 /// - Panel de resultado con el reporte de tiro
 /// - Actualización del predictor de trayectoria en tiempo real
 /// </summary>
 public class UIController : MonoBehaviour
 {
-    // ── Referencias UI ─────────────────────────────────────────────────────────
+    // ── Controles de disparo ───────────────────────────────────────────────────
     [Header("Controles de Disparo")]
-    public Slider    AngleSlider;
-    public Slider    ForceSlider;
+    public Slider       AngleSlider;
+    public Slider       ForceSlider;
     public TMP_Dropdown MassDropdown;
-    public Button    FireButton;
-    public Button    ResetButton;
+    public Button       FireButton;
+    public Button       ResetButton;
 
     [Header("Etiquetas de Valor")]
-    public TMP_Text  AngleValueLabel;   // Muestra el valor actual del slider de ángulo
-    public TMP_Text  ForceValueLabel;   // Muestra el valor actual del slider de fuerza
-    public TMP_Text  MassValueLabel;    // Muestra la masa seleccionada
+    public TMP_Text  AngleValueLabel;
+    public TMP_Text  ForceValueLabel;
+    public TMP_Text  MassValueLabel;
 
     [Header("Panel de Resultado")]
-    public GameObject ResultPanel;      // Panel que se muestra al terminar el disparo
-    public TMP_Text   ResultText;       // Texto del reporte de tiro
-    public TMP_Text   ScoreText;        // Texto grande con la puntuación
-    public TMP_Text   TotalScoreText;   // Puntuación acumulada total
+    public GameObject ResultPanel;
+    public TMP_Text   ResultText;
+    public TMP_Text   ScoreText;
+    public TMP_Text   TotalScoreText;
 
     [Header("HUD Durante Vuelo")]
-    public TMP_Text  FlightTimeLabel;   // Muestra el tiempo de vuelo en tiempo real
-    public GameObject AimingPanel;      // Panel de controles (se oculta durante el vuelo)
+    public TMP_Text   FlightTimeLabel;
+    public GameObject AimingPanel;
 
-    // ── Predictor de trayectoria ───────────────────────────────────────────────
     [Header("Trayectoria")]
     public TrajectoryPredictor TrajectoryPredictor;
 
     // ── Masas disponibles ──────────────────────────────────────────────────────
-    private readonly float[] _massOptions = { 0.5f, 1f, 3f };
-    private readonly string[] _massLabels = { "Ligero (0.5 kg)", "Mediano (1 kg)", "Pesado (3 kg)" };
+    private readonly float[]  _massOptions = { 0.5f, 1f, 3f };
+    private readonly string[] _massLabels  = { "Ligero (0.5 kg)", "Mediano (1 kg)", "Pesado (3 kg)" };
 
     // ── Estado interno ─────────────────────────────────────────────────────────
     private bool  _isInFlight;
@@ -55,19 +54,16 @@ public class UIController : MonoBehaviour
         SetupDropdown();
         SetupButtons();
 
-        // Estado inicial
         ResultPanel?.SetActive(false);
         AimingPanel?.SetActive(true);
 
-        // Sincronizar valores iniciales con GameManager
-        OnAngleChanged(AngleSlider.value);
-        OnForceChanged(ForceSlider.value);
+        OnAngleChanged(AngleSlider != null ? AngleSlider.value : 45f);
+        OnForceChanged(ForceSlider != null ? ForceSlider.value : 50f);
         OnMassChanged(0);
     }
 
     private void Update()
     {
-        // Actualizar tiempo de vuelo en pantalla
         if (_isInFlight && FlightTimeLabel != null)
         {
             float elapsed = Time.time - _flightStartTime;
@@ -75,7 +71,7 @@ public class UIController : MonoBehaviour
         }
     }
 
-    // ── Configuración de controles ─────────────────────────────────────────────
+    // ── Setup ──────────────────────────────────────────────────────────────────
 
     private void SetupSliders()
     {
@@ -106,7 +102,7 @@ public class UIController : MonoBehaviour
             options.Add(new TMP_Dropdown.OptionData(label));
 
         MassDropdown.AddOptions(options);
-        MassDropdown.value = 1; // Mediano por defecto
+        MassDropdown.value = 1;
         MassDropdown.onValueChanged.AddListener(OnMassChanged);
     }
 
@@ -116,16 +112,14 @@ public class UIController : MonoBehaviour
         ResetButton?.onClick.AddListener(OnResetButtonPressed);
     }
 
-    // ── Callbacks de controles ─────────────────────────────────────────────────
+    // ── Callbacks ──────────────────────────────────────────────────────────────
 
     private void OnAngleChanged(float value)
     {
         if (GameManager.Instance != null)
             GameManager.Instance.AngleDegrees = value;
-
         if (AngleValueLabel != null)
             AngleValueLabel.text = $"{value:F1}°";
-
         TrajectoryPredictor?.UpdateTrajectory();
     }
 
@@ -133,25 +127,19 @@ public class UIController : MonoBehaviour
     {
         if (GameManager.Instance != null)
             GameManager.Instance.ForceMagnitude = value;
-
         if (ForceValueLabel != null)
             ForceValueLabel.text = $"{value:F0}";
-
         TrajectoryPredictor?.UpdateTrajectory();
     }
 
     private void OnMassChanged(int index)
     {
         if (index < 0 || index >= _massOptions.Length) return;
-
         float mass = _massOptions[index];
-
         if (GameManager.Instance != null)
             GameManager.Instance.ProjectileMass = mass;
-
         if (MassValueLabel != null)
             MassValueLabel.text = $"{mass} kg";
-
         TrajectoryPredictor?.UpdateTrajectory();
     }
 
@@ -160,13 +148,11 @@ public class UIController : MonoBehaviour
         if (GameManager.Instance == null) return;
         if (GameManager.Instance.CurrentState != GameManager.GameState.WaitingToShoot) return;
 
-        _isInFlight = true;
+        _isInFlight      = true;
         _flightStartTime = Time.time;
 
-        // Ocultar panel de apuntado y predictor durante el vuelo
         AimingPanel?.SetActive(false);
         TrajectoryPredictor?.HideTrajectory();
-
         if (FlightTimeLabel != null) FlightTimeLabel.gameObject.SetActive(true);
 
         GameManager.Instance.RequestShot();
@@ -180,29 +166,19 @@ public class UIController : MonoBehaviour
 
     // ── API Pública ────────────────────────────────────────────────────────────
 
-    /// <summary>Activa/desactiva el botón de disparo.</summary>
     public void SetFireButtonInteractable(bool interactable)
     {
-        if (FireButton != null)
-            FireButton.interactable = interactable;
+        if (FireButton != null) FireButton.interactable = interactable;
     }
 
-    /// <summary>Muestra el panel de resultado con los datos del último disparo.</summary>
     public void ShowResultPanel(ShotResult result)
     {
-        // Detener contador de vuelo sin importar qué
         _isInFlight = false;
-
-        // Ocultar HUD de vuelo
-        if (FlightTimeLabel != null)
-            FlightTimeLabel.gameObject.SetActive(false);
-
-        // Mostrar panel de apuntado de nuevo (botón reiniciar visible)
+        if (FlightTimeLabel != null) FlightTimeLabel.gameObject.SetActive(false);
         AimingPanel?.SetActive(true);
 
         if (result == null) return;
 
-        // Rellenar textos
         if (ResultText     != null) ResultText.text  = result.Report;
         if (ScoreText      != null) ScoreText.text   = $"{result.Score:F0} pts";
         if (TotalScoreText != null)
@@ -212,12 +188,9 @@ public class UIController : MonoBehaviour
         }
 
         ResultPanel?.SetActive(true);
-
-        // Animación de entrada
-        AnimateResultPanel();
+        StartCoroutine(ScalePanel(ResultPanel.transform, Vector3.one * 0.8f, Vector3.one, 0.25f));
     }
 
-    /// <summary>Oculta el panel de resultado.</summary>
     public void HideResultPanel()
     {
         ResultPanel?.SetActive(false);
@@ -225,24 +198,15 @@ public class UIController : MonoBehaviour
         TrajectoryPredictor?.ShowTrajectory();
     }
 
-    // ── Animación simple del panel ─────────────────────────────────────────────
-
-    private void AnimateResultPanel()
-    {
-        if (ResultPanel == null) return;
-
-        // Escala desde 0.8 a 1 usando una corrutina simple
-        StartCoroutine(ScalePanel(ResultPanel.transform, Vector3.one * 0.8f, Vector3.one, 0.25f));
-    }
+    // ── Animación ──────────────────────────────────────────────────────────────
 
     private System.Collections.IEnumerator ScalePanel(Transform t, Vector3 from, Vector3 to, float duration)
     {
         float elapsed = 0f;
         while (elapsed < duration)
         {
-            elapsed += Time.deltaTime;
-            float p = Mathf.SmoothStep(0f, 1f, elapsed / duration);
-            t.localScale = Vector3.Lerp(from, to, p);
+            elapsed      += Time.deltaTime;
+            t.localScale  = Vector3.Lerp(from, to, Mathf.SmoothStep(0f, 1f, elapsed / duration));
             yield return null;
         }
         t.localScale = to;

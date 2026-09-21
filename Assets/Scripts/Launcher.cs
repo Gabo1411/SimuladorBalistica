@@ -59,20 +59,16 @@ public class Launcher : MonoBehaviour
         if (_currentProjectile != null)
             Destroy(_currentProjectile);
 
+        // Asegurarse que el cañón esté en el ángulo correcto
+        UpdateBarrelAngle(angleDegrees);
+
         // Calcular dirección de lanzamiento
         Vector3 direction = CalculateLaunchDirection(angleDegrees);
-
-        // Rotar el cañón visualmente
-        if (RotateBarrel && BarrelTransform != null)
-        {
-            float angle = -angleDegrees; // negativo porque apunta "hacia arriba" en local
-            BarrelTransform.localRotation = Quaternion.Euler(angle, 0f, 0f);
-        }
 
         // Instanciar el proyectil en el FirePoint
         _currentProjectile = Instantiate(ProjectilePrefab, FirePoint.position, FirePoint.rotation);
 
-        // Configurar masa ANTES de aplicar la fuerza
+        // Configurar masa
         Projectile projectileScript = _currentProjectile.GetComponent<Projectile>();
         if (projectileScript != null)
             projectileScript.InitialMass = mass;
@@ -83,15 +79,19 @@ public class Launcher : MonoBehaviour
             Debug.LogError("[Launcher] El prefab del proyectil no tiene Rigidbody.");
             return;
         }
-
-        // Asignar masa al Rigidbody directamente también
         rb.mass = mass;
 
         // Aplicar fuerza de impulso
-        // Usamos ForceMode.Impulse para una fuerza instantánea (F = m·a → v = F/m)
         rb.AddForce(direction * forceMagnitude, ForceMode.Impulse);
 
-        Debug.Log($"[Launcher] Disparado: ángulo={angleDegrees}°, fuerza={forceMagnitude}, masa={mass}kg, dirección={direction}");
+        Debug.Log($"[Launcher] Disparado: ángulo={angleDegrees}°, fuerza={forceMagnitude}, masa={mass}kg");
+    }
+
+    /// <summary>Rota el cañón visualmente al ángulo dado. Llamar en tiempo real desde el slider.</summary>
+    public void UpdateBarrelAngle(float angleDegrees)
+    {
+        if (RotateBarrel && BarrelTransform != null)
+            BarrelTransform.localRotation = Quaternion.Euler(-angleDegrees, 0f, 0f);
     }
 
     /// <summary>
