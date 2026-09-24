@@ -108,10 +108,18 @@ public class Launcher : MonoBehaviour
     public void UpdateBarrelRotation(float angleDegrees)
     {
         if (RotateBarrel && BarrelTransform != null)
-        {
-            // Negativo → el cañón se inclina hacia ARRIBA al aumentar el ángulo
             BarrelTransform.localRotation = Quaternion.Euler(-angleDegrees, 0f, 0f);
-        }
+    }
+
+    /// <summary>
+    /// Devuelve la dirección REAL del barrel (forward del BarrelPivot).
+    /// Garantiza coherencia visual entre el cañón y la línea de trayectoria.
+    /// </summary>
+    public Vector3 GetBarrelDirection()
+    {
+        if (BarrelTransform != null)
+            return BarrelTransform.forward; // forward del BarrelPivot rotado
+        return GetLaunchDirection(GameManager.Instance != null ? GameManager.Instance.AngleDegrees : 45f);
     }
 
     /// <summary>

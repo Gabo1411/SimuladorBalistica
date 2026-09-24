@@ -37,14 +37,18 @@ public class Projectile : MonoBehaviour
 
     private void Start()
     {
+        _rb = GetComponent<Rigidbody>();
+
         // Aplicar masa configurada por el Launcher
         _rb.mass = InitialMass;
 
+        // ContinuousDynamic evita el tunneling cuando el proyectil va muy rápido
+        _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+
         // Registrar momento de lanzamiento
-        _launchTime = Time.time;
+        _launchTime  = Time.time;
         _hasImpacted = false;
 
-        // Auto-destrucción por timeout
         Destroy(gameObject, LifeTime);
     }
 

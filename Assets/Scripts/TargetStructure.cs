@@ -89,6 +89,8 @@ public class TargetStructure : MonoBehaviour
                 rb.mass        = BoxMass;
                 rb.drag        = 0.5f;
                 rb.angularDrag = 0.5f;
+                // Continuous permite recibir impactos de proyectiles rápidos
+                rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
 
                 // Script Target
                 Target target          = block.AddComponent<Target>();

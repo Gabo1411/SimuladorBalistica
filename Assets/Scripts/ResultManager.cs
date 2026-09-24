@@ -121,27 +121,27 @@ public class ResultManager : MonoBehaviour
     {
         if (data.WasMiss)
         {
-            return $"⚠ DISPARO FALLADO\n" +
-                   $"El proyectil no impactó ningún objetivo.\n" +
+            return $"[!] DISPARO FALLADO\n" +
+                   $"El proyectil no impacto ningun objetivo.\n" +
                    $"Tiempo de vuelo: {data.FlightTime:F2} s\n" +
                    $"Piezas derribadas: {data.PiecesKnocked}\n" +
-                   $"━━━━━━━━━━━━━━━━━━━━━\n" +
+                   $"-------------------------\n" +
                    $"PUNTAJE: {score:F0} pts";
         }
 
         string precision = GetPrecisionRating(data);
         string power     = GetPowerRating(data);
 
-        return $"✦ REPORTE DE TIRO #{GameManager.Instance?.ResultManager?.TotalShots ?? 1}\n" +
-               $"━━━━━━━━━━━━━━━━━━━━━\n" +
+        return $"== REPORTE DE TIRO #{TotalShots} ==\n" +
+               $"-------------------------\n" +
                $"Tiempo de vuelo:   {data.FlightTime:F2} s\n" +
                $"Punto de impacto:  ({data.ImpactPoint.x:F1}, {data.ImpactPoint.y:F1}, {data.ImpactPoint.z:F1})\n" +
                $"Vel. relativa:     {data.RelativeVelocity.magnitude:F2} m/s\n" +
-               $"Impulso:           {data.ImpulseForce:F2} N·s\n" +
+               $"Impulso:           {data.ImpulseForce:F2} N*s\n" +
                $"Piezas derribadas: {data.PiecesKnocked}\n" +
-               $"Precisión:         {precision}\n" +
+               $"Precision:         {precision}\n" +
                $"Potencia:          {power}\n" +
-               $"━━━━━━━━━━━━━━━━━━━━━\n" +
+               $"-------------------------\n" +
                $"PUNTAJE: {score:F0} pts";
     }
 
@@ -149,18 +149,18 @@ public class ResultManager : MonoBehaviour
     {
         if (TargetCenter == null) return "N/A";
         float dist = Vector3.Distance(data.ImpactPoint, TargetCenter.position);
-        if (dist < 1f)  return "⭐⭐⭐ EXACTO";
-        if (dist < 3f)  return "⭐⭐ BUENO";
-        if (dist < 6f)  return "⭐ ACEPTABLE";
-        return "✗ LEJOS";
+        if (dist < 1f) return "*** EXACTO";
+        if (dist < 3f) return "**  BUENO";
+        if (dist < 6f) return "*   ACEPTABLE";
+        return "X   LEJOS";
     }
 
     private string GetPowerRating(ShotData data)
     {
         float speed = data.RelativeVelocity.magnitude;
-        if (speed > 30f) return "⭐⭐⭐ DEVASTADOR";
-        if (speed > 15f) return "⭐⭐ FUERTE";
-        if (speed > 5f)  return "⭐ MODERADO";
-        return "✗ DÉBIL";
+        if (speed > 30f) return "*** DEVASTADOR";
+        if (speed > 15f) return "**  FUERTE";
+        if (speed > 5f)  return "*   MODERADO";
+        return "X   DEBIL";
     }
 }

@@ -25,8 +25,11 @@ public class TrajectoryPredictor : MonoBehaviour
     [Tooltip("Launcher del que se obtiene la posición inicial y dirección.")]
     public Launcher LauncherRef;
 
-    // ── Componentes ────────────────────────────────────────────────────────────
+    // ── Estado ─────────────────────────────────────────────────────────────────
     private LineRenderer _lineRenderer;
+    private bool         _isVisible = true;
+
+    // ──────────────────────────────────────────────────────────────────────────
 
     // ──────────────────────────────────────────────────────────────────────────
 
@@ -38,42 +41,55 @@ public class TrajectoryPredictor : MonoBehaviour
 
     private void Start()
     {
+        _isVisible = true;
         UpdateTrajectory();
+    }
+
+    /// <summary>
+    /// LateUpdate garantiza que la línea se dibuja DESPUÉS de que el barrel
+    /// ya rotó en este frame, evitando el desfase visual de un frame.
+    /// </summary>
+    private void LateUpdate()
+    {
+        if (_isVisible)
+            UpdateTrajectory();
     }
 
     // ── API Pública ────────────────────────────────────────────────────────────
 
-    /// <summary>Recalcula y dibuja la trayectoria predicha con los parámetros actuales del GameManager.</summary>
+    /// <summary>Recalcula y dibuja la trayectoria predicha.</summary>
     public void UpdateTrajectory()
     {
-        if (GameManager.Instance == null || LauncherRef == null)
+        if (LauncherRef == null)
         {
             _lineRenderer.positionCount = 0;
             return;
         }
 
-        float   angle = GameManager.Instance.AngleDegrees;
-        float   force = GameManager.Instance.ForceMagnitude;
-        float   mass  = GameManager.Instance.ProjectileMass;
         Vector3 start = LauncherRef.GetFirePoint();
-        Vector3 dir   = LauncherRef.GetLaunchDirection(angle);
+
+        // Usar la dirección REAL del barrel para coherencia visual perfecta
+        Vector3 dir = LauncherRef.GetBarrelDirection();
 
         // Velocidad inicial: v = F/m (ForceMode.Impulse)
+        float   force = GameManager.Instance != null ? GameManager.Instance.ForceMagnitude : 50f;
+        float   mass  = GameManager.Instance != null ? GameManager.Instance.ProjectileMass  : 1f;
         Vector3 velocity = dir * (force / mass);
 
         DrawParabola(start, velocity);
     }
 
-    /// <summary>Oculta la línea de trayectoria (cuando el proyectil está en vuelo).</summary>
+    /// <summary>Oculta la línea (durante el vuelo).</summary>
     public void HideTrajectory()
     {
+        _isVisible = false;
         _lineRenderer.positionCount = 0;
     }
 
-    /// <summary>Muestra la línea de trayectoria.</summary>
+    /// <summary>Muestra la línea (al reiniciar o en reposo).</summary>
     public void ShowTrajectory()
     {
-        UpdateTrajectory();
+        _isVisible = true;
     }
 
     // ── Dibujo de parábola ─────────────────────────────────────────────────────
