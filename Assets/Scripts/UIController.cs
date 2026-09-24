@@ -120,6 +120,10 @@ public class UIController : MonoBehaviour
             GameManager.Instance.AngleDegrees = value;
         if (AngleValueLabel != null)
             AngleValueLabel.text = $"{value:F1}°";
+
+        // Rotar el cañón en tiempo real
+        GameManager.Instance?.Launcher?.UpdateBarrelRotation(value);
+
         TrajectoryPredictor?.UpdateTrajectory();
     }
 
