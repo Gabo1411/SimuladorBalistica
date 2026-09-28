@@ -131,8 +131,11 @@ Assets/
 | ✅ Reporte de tiro al final de cada intento | Panel animado con todos los datos y ratings |
 
 ---
-
+Link del video de YouTube: https://youtu.be/jS8MtpC-d6I
+---
 ## Autor
+
+Gabriel Giménez Surdel
 
 Proyecto desarrollado para la materia de **Desarrollo de Videojuegos**.
 Unity 2022.3.62f1 LTS — 2026.
