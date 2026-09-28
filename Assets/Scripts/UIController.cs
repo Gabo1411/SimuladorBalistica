@@ -19,21 +19,26 @@ public class UIController : MonoBehaviour
     public TMP_Dropdown MassDropdown;
     public Button       FireButton;
     public Button       ResetButton;
+    public Button       HistoryButton;   // Abre el panel de historial UGS
+
+    [Header("Paneles")]
+    public GameObject ResultPanel;
+    public GameObject HistoryPanel;     // Panel con la lista de disparos guardados
+    public GameObject AimingPanel;
 
     [Header("Etiquetas de Valor")]
     public TMP_Text  AngleValueLabel;
     public TMP_Text  ForceValueLabel;
     public TMP_Text  MassValueLabel;
+    public TMP_Text  UGSStatusLabel;
 
-    [Header("Panel de Resultado")]
-    public GameObject ResultPanel;
+    [Header("Resultado")]
     public TMP_Text   ResultText;
     public TMP_Text   ScoreText;
     public TMP_Text   TotalScoreText;
 
     [Header("HUD Durante Vuelo")]
     public TMP_Text   FlightTimeLabel;
-    public GameObject AimingPanel;
 
     [Header("Trayectoria")]
     public TrajectoryPredictor TrajectoryPredictor;
@@ -55,11 +60,28 @@ public class UIController : MonoBehaviour
         SetupButtons();
 
         ResultPanel?.SetActive(false);
+        HistoryPanel?.SetActive(false);
         AimingPanel?.SetActive(true);
+
+        // Suscribirse a eventos de estado de UGS
+        if (UGSManager.Instance != null)
+            UGSManager.Instance.OnStatusChanged += OnUGSStatusChanged;
 
         OnAngleChanged(AngleSlider != null ? AngleSlider.value : 45f);
         OnForceChanged(ForceSlider != null ? ForceSlider.value : 50f);
         OnMassChanged(0);
+    }
+
+    private void OnDestroy()
+    {
+        if (UGSManager.Instance != null)
+            UGSManager.Instance.OnStatusChanged -= OnUGSStatusChanged;
+    }
+
+    private void OnUGSStatusChanged(string status)
+    {
+        if (UGSStatusLabel != null)
+            UGSStatusLabel.text = status;
     }
 
     private void Update()
@@ -110,6 +132,13 @@ public class UIController : MonoBehaviour
     {
         FireButton?.onClick.AddListener(OnFireButtonPressed);
         ResetButton?.onClick.AddListener(OnResetButtonPressed);
+        HistoryButton?.onClick.AddListener(OnHistoryButtonPressed);
+    }
+
+    private void OnHistoryButtonPressed()
+    {
+        bool isOpen = HistoryPanel != null && HistoryPanel.activeSelf;
+        HistoryPanel?.SetActive(!isOpen);
     }
 
     // ── Callbacks ──────────────────────────────────────────────────────────────

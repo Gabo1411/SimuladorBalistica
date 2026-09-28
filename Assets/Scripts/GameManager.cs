@@ -86,6 +86,9 @@ public class GameManager : MonoBehaviour
         CurrentState = GameState.ShowingResult;
         ResultManager.RegisterResult(data);
         UIController.ShowResultPanel(ResultManager.GetLatestResult());
+
+        // Guardar en UGS Cloud Save
+        SaveToUGS(data, ResultManager.GetLatestResult());
     }
 
     /// <summary>Llamado cuando el proyectil supera el tiempo máximo sin impactar.</summary>
@@ -107,6 +110,34 @@ public class GameManager : MonoBehaviour
         CurrentState = GameState.ShowingResult;
         ResultManager.RegisterResult(missData);
         UIController.ShowResultPanel(ResultManager.GetLatestResult());
+
+        // Guardar en UGS Cloud Save
+        SaveToUGS(missData, ResultManager.GetLatestResult());
+    }
+
+    // ── UGS ────────────────────────────────────────────────────────────────────
+
+    private void SaveToUGS(ShotData data, ShotResult result)
+    {
+        if (UGSManager.Instance == null || !UGSManager.Instance.IsInitialized) return;
+
+        float distToCenter = 0f;
+        if (!data.WasMiss && ResultManager.TargetCenter != null)
+            distToCenter = Vector3.Distance(data.ImpactPoint, ResultManager.TargetCenter.position);
+
+        ShotRecord record = new ShotRecord
+        {
+            Angle            = AngleDegrees,
+            Force            = ForceMagnitude,
+            Mass             = ProjectileMass,
+            WasHit           = !data.WasMiss,
+            DistanceToCenter = distToCenter,
+            PiecesKnocked    = data.PiecesKnocked,
+            Score            = result?.Score ?? 0f
+        };
+
+        // Fire-and-forget: no bloquea el juego
+        _ = UGSManager.Instance.SaveShotAsync(record);
     }
 
     /// <summary>Llamado por UIController al presionar "Reiniciar".</summary>
