@@ -137,7 +137,7 @@ Assets/
 | ✅ Botón en menú para lista de resultados | Botón UI "Ver Historial" que abre `HistoryPanel` |
 
 ---
-Link del video de YouTube: https://youtu.be/jS8MtpC-d6I
+Link del video de YouTube: https://youtu.be/y9z2QkP3bII
 ---
 ## Autor
 
